@@ -4,9 +4,8 @@ import 'package:flutter/foundation.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      // 10.0.2.2 is the localhost for Android Emulators
-      // For physical devices, use your computer's local IP address
-      baseUrl: kIsWeb ? 'http://localhost:3000' : 'http://10.0.2.2:3000',
+      // Pointing to Live Vercel Backend
+      baseUrl: 'https://manifest-backend.vercel.app',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
