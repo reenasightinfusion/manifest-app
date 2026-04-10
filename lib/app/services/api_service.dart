@@ -42,7 +42,8 @@ class ApiService {
       if (e is DioException) {
         String? serverMessage;
         if (e.response?.data != null && e.response?.data is Map) {
-          serverMessage = e.response?.data['message'] ?? e.response?.data['error'];
+          serverMessage =
+              e.response?.data['message'] ?? e.response?.data['error'];
         }
         throw Exception('Network Error: ${serverMessage ?? e.message}');
       }
@@ -80,6 +81,13 @@ class ApiService {
       if (body['valid'] == false) return body;
       return body['data'] ?? {};
     } catch (e) {
+      if (e is DioException) {
+        String? serverMessage;
+        if (e.response?.data != null && e.response?.data is Map) {
+          serverMessage = e.response?.data['message'] ?? e.response?.data['error'];
+        }
+        throw Exception('Failed to manifest your plan: ${serverMessage ?? e.message}');
+      }
       throw Exception('Failed to manifest your plan: $e');
     }
   }
@@ -117,6 +125,13 @@ class ApiService {
       );
       return response.data['data'] as Map<String, dynamic>;
     } catch (e) {
+      if (e is DioException) {
+        String? serverMessage;
+        if (e.response?.data != null && e.response?.data is Map) {
+          serverMessage = e.response?.data['message'] ?? e.response?.data['error'];
+        }
+        throw Exception('Failed to discover your archetype: ${serverMessage ?? e.message}');
+      }
       throw Exception('Failed to discover your archetype: $e');
     }
   }
