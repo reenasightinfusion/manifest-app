@@ -10,17 +10,9 @@ class PrivacySettingsScreen extends StatefulWidget {
 }
 
 class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
-  // ── Data & Privacy toggles ────────────────────────────────────────────
   bool _analyticsEnabled = true;
   bool _personalizationEnabled = true;
   bool _crashReportsEnabled = true;
-
-  // ── Visibility toggles ────────────────────────────────────────────────
-  bool _profileVisible = false;
-  bool _manifestationsVisible = false;
-  bool _archetypeVisible = true;
-
-  // ── Security toggles ──────────────────────────────────────────────────
   bool _biometricLock = false;
   bool _autoLock = true;
 

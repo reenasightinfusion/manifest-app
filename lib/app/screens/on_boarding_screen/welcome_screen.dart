@@ -132,7 +132,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           _nameSearchController.text.trim(),
                           _passcodeController.text.trim(),
                         );
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         if (success) {
                           _nameSearchController.clear();
                           _passcodeController.clear();
@@ -156,6 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           );
                         }
                       } catch (e) {
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(

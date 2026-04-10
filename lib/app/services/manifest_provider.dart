@@ -143,4 +143,21 @@ class ManifestProvider with ChangeNotifier {
     _fullAi = null;
     notifyListeners();
   }
+
+  // ── Audio Playback ────────────────────────────────────────────────────────
+  bool _isPlaying = false;
+  bool get isPlaying => _isPlaying;
+
+  void setPlaying(bool value) {
+    _isPlaying = value;
+    notifyListeners();
+  }
+
+  double _speechRate = 0.45;
+  double get speechRate => _speechRate;
+
+  void setSpeechRate(double rate) {
+    _speechRate = rate;
+    notifyListeners();
+  }
 }

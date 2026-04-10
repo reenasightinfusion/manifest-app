@@ -74,7 +74,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
     } else {
       try {
         await provider.syncToApi();
-        if (!mounted) return;
+        if (!context.mounted) return;
         Navigator.of(context).pushReplacementNamed(AppRoutes.home);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -90,11 +90,11 @@ class _UserInfoScreenState extends State<UserInfoScreen>
           ),
         );
       } catch (e) {
-        if (!mounted) return;
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Connection to cosmic server failed: $e',
+              e.toString().replaceAll('Exception: Server returned error: ', '').replaceAll('Exception: ', ''),
               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
             ),
             backgroundColor: AppColors.pink,

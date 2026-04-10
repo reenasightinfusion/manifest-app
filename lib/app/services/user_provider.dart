@@ -21,6 +21,49 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _securityError = false;
+  bool get securityError => _securityError;
+
+  void setSecurityError(bool value) {
+    _securityError = value;
+    notifyListeners();
+  }
+
+  bool _analyticsEnabled = true;
+  bool get analyticsEnabled => _analyticsEnabled;
+  void setAnalytics(bool value) {
+    _analyticsEnabled = value;
+    notifyListeners();
+  }
+
+  bool _personalizationEnabled = true;
+  bool get personalizationEnabled => _personalizationEnabled;
+  void setPersonalization(bool value) {
+    _personalizationEnabled = value;
+    notifyListeners();
+  }
+
+  bool _crashReportsEnabled = true;
+  bool get crashReportsEnabled => _crashReportsEnabled;
+  void setCrashReports(bool value) {
+    _crashReportsEnabled = value;
+    notifyListeners();
+  }
+
+  bool _biometricLock = false;
+  bool get biometricLock => _biometricLock;
+  void setBiometricLock(bool value) {
+    _biometricLock = value;
+    notifyListeners();
+  }
+
+  bool _autoLock = true;
+  bool get autoLock => _autoLock;
+  void setAutoLock(bool value) {
+    _autoLock = value;
+    notifyListeners();
+  }
+
   // ── Onboarding Survey Answers ──────────────────────────────────────────────
   final List<String> personalAnswers = List.filled(5, '');
   final List<String> familyAnswers = List.filled(5, '');
@@ -182,6 +225,7 @@ class UserProvider with ChangeNotifier {
       _isLoggedIn = true;
     } catch (e) {
       debugPrint('SYNC ERROR: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
