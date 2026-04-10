@@ -124,7 +124,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
 
         return Scaffold(
           backgroundColor: AppColors.white,
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: true,
           body: Stack(
             children: [
               Positioned(
@@ -488,7 +488,7 @@ class _QuestionPage extends StatelessWidget {
     return FadeTransition(
       opacity: fadeAnim,
       child: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 40.h),
         children: [
           Row(
             children: [
@@ -759,7 +759,7 @@ class _SecurityStepState extends State<_SecurityStep> {
       opacity: widget.fadeAnim,
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 40.h),
           child: Column(
             children: [
               Row(
