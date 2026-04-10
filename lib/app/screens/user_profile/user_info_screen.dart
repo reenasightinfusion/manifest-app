@@ -66,7 +66,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
       return;
     }
 
-    if (provider.onboardingStep < 2) {
+    if (provider.onboardingStep < 3) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 450),
         curve: Curves.easeInOut,
@@ -117,7 +117,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, provider, _) {
-        final bool isLast = provider.onboardingStep == 2;
+        final bool isLast = provider.onboardingStep == 3;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -212,7 +212,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
                               ),
                             ),
                             child: Text(
-                              'Step ${provider.onboardingStep + 1} of 3',
+                              'Step ${provider.onboardingStep + 1} of 4',
                               style: AppTextStyles.label.copyWith(
                                 color: AppColors.purple,
                                 fontWeight: FontWeight.w700,
@@ -229,11 +229,11 @@ class _UserInfoScreenState extends State<UserInfoScreen>
                         vertical: 20.h,
                       ),
                       child: Row(
-                        children: List.generate(3, (i) {
+                        children: List.generate(4, (i) {
                           return Expanded(
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 400),
-                              margin: EdgeInsets.only(right: i < 2 ? 8.w : 0),
+                              margin: EdgeInsets.only(right: i < 3 ? 8.w : 0),
                               height: 4.h,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(2.r),
@@ -256,8 +256,11 @@ class _UserInfoScreenState extends State<UserInfoScreen>
                         controller: _pageController,
                         onPageChanged: (idx) => _onPageChanged(context, idx),
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 3,
+                        itemCount: 4,
                         itemBuilder: (context, index) {
+                          if (index == 3) {
+                            return _SecurityStep(fadeAnim: _fadeAnim);
+                          }
                           return _QuestionPage(
                             fadeAnim: _fadeAnim,
                             page: _pages[index],
@@ -711,6 +714,192 @@ class _QuestionCardState extends State<_QuestionCard> {
           ),
         );
       },
+    );
+  }
+}
+
+class _SecurityStep extends StatefulWidget {
+  final Animation<double> fadeAnim;
+
+  const _SecurityStep({required this.fadeAnim});
+
+  @override
+  State<_SecurityStep> createState() => _SecurityStepState();
+}
+
+class _SecurityStepState extends State<_SecurityStep> {
+  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-focus after a short delay to allow page transition to complete
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: widget.fadeAnim,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12.r),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: AppColors.primaryGradient,
+                    ),
+                    borderRadius: BorderRadius.circular(16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.glowPurple.withValues(alpha: 0.5),
+                        blurRadius: 12.r,
+                        spreadRadius: -2.r,
+                      ),
+                    ],
+                  ),
+                  child: Icon(Icons.security_rounded, color: AppColors.white, size: 26.sp),
+                ),
+                14.horizontalSpace,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PROTECT THE COSMOS',
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.purple,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                    Text(
+                      'Your Secret\nPassphrase',
+                      style: AppTextStyles.headingMedium.copyWith(
+                        fontSize: 22.sp,
+                        height: 1.1,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            40.verticalSpace,
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(24.r),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVeryLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.lock_person_rounded,
+                  size: 60.sp,
+                  color: AppColors.purple.withValues(alpha: 0.3),
+                ),
+              ),
+            ),
+            32.verticalSpace,
+            Text(
+              'To protect your manifestations, set a 4-digit code. This will be required when accessing your profile from any device.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textGrey,
+                height: 1.6,
+                fontSize: 14.sp,
+              ),
+            ),
+            40.verticalSpace,
+            // Wrap in GestureDetector to ensure keyboard opens on tap
+            GestureDetector(
+              onTap: () => _focusNode.requestFocus(),
+              behavior: HitTestBehavior.opaque,
+              child: Consumer<UserProvider>(
+                builder: (context, provider, _) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (index) {
+                    final String code = provider.passcode ?? '';
+                    final bool filled = code.length > index;
+                    
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: EdgeInsets.symmetric(horizontal: 10.w),
+                      width: 50.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: filled ? AppColors.purple : AppColors.borderVeryLight,
+                          width: filled ? 2.w : 1.w,
+                        ),
+                        boxShadow: filled ? [
+                          BoxShadow(
+                            color: AppColors.purple.withValues(alpha: 0.1),
+                            blurRadius: 10.r,
+                            spreadRadius: 2.r,
+                          )
+                        ] : null,
+                      ),
+                      child: Center(
+                        child: Text(
+                          filled ? '●' : '',
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            color: AppColors.purple,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+            24.verticalSpace,
+            Text(
+              'TAP TO ENTER CODE',
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.textLightGrey,
+                fontSize: 10.sp,
+                letterSpacing: 2,
+              ),
+            ),
+            // The actual hidden TextField
+            SizedBox(
+              height: 0,
+              width: 0,
+              child: TextField(
+                focusNode: _focusNode,
+                controller: _controller,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                onChanged: (val) {
+                  context.read<UserProvider>().setPasscode(val);
+                },
+                decoration: const InputDecoration(
+                  counterText: "",
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

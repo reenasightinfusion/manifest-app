@@ -263,8 +263,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         label: 'Privacy Settings',
                         subtitle: 'Data protection and sphere visibility',
                         icon: Icons.security_rounded,
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.security),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.privacySettings,
+                        ),
                       ),
                       _MenuTile(
                         label: 'App Notifications',

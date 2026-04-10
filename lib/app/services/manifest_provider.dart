@@ -20,6 +20,12 @@ class ManifestProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  String? _invalidReason;
+  String? get invalidReason => _invalidReason;
+
+  String? _invalidTip;
+  String? get invalidTip => _invalidTip;
+
   bool _isFocused = false;
   bool get isFocused => _isFocused;
 
@@ -35,11 +41,23 @@ class ManifestProvider with ChangeNotifier {
     _currentPlan = null;
     _actionCards = [];
     _fullAi = null;
+    _invalidReason = null;
+    _invalidTip = null;
     _activeGoal = goal.trim();
     notifyListeners();
 
     try {
       final data = await _apiService.generatePlan(userId, goal.trim());
+
+      // Check if backend rejected the input as invalid
+      if (data['valid'] == false) {
+        _invalidReason =
+            data['reason'] ?? 'This doesn\'t look like a valid goal.';
+        _invalidTip = data['tip'];
+        _activeGoal = ''; // reset so the button doesn't stay hidden
+        return;
+      }
+
       _currentPlan = data['plan'];
       _actionCards = data['cards'] ?? [];
       _fullAi = data['full_ai'];
@@ -79,15 +97,19 @@ class ManifestProvider with ChangeNotifier {
       try {
         if (plan['full_content'] != null) {
           _fullAi = jsonDecode(plan['full_content']);
-          
+
           // SELF-HEALING: If DB rejected the tasks because of schema errors, rebuild them instantly!
-          if (restoredCards.isEmpty && _fullAi != null && _fullAi!['pillars'] != null) {
-            restoredCards = (_fullAi!['pillars'] as List).asMap().entries.map((entry) {
+          if (restoredCards.isEmpty &&
+              _fullAi != null &&
+              _fullAi!['pillars'] != null) {
+            restoredCards = (_fullAi!['pillars'] as List).asMap().entries.map((
+              entry,
+            ) {
               return {
                 'day_number': entry.key + 1,
                 'task_title': entry.value['title'],
                 'task_description': entry.value['huge_text'],
-                'task_summary': entry.value['summary']
+                'task_summary': entry.value['summary'],
               };
             }).toList();
           }
@@ -103,7 +125,9 @@ class ManifestProvider with ChangeNotifier {
     try {
       final success = await _apiService.deleteManifest(manifestationId);
       if (success) {
-        _history.removeWhere((item) => item['id'].toString() == manifestationId);
+        _history.removeWhere(
+          (item) => item['id'].toString() == manifestationId,
+        );
         notifyListeners();
       }
       return success;

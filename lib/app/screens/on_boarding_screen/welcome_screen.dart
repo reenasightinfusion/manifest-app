@@ -33,10 +33,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _fadeController.forward();
   }
 
+  final TextEditingController _passcodeController = TextEditingController();
+
   @override
   void dispose() {
     _fadeController.dispose();
     _nameSearchController.dispose();
+    _passcodeController.dispose();
     super.dispose();
   }
 
@@ -45,7 +48,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.r),
+        ),
         title: Text(
           'RECOVER IDENTITY',
           textAlign: TextAlign.center,
@@ -59,7 +64,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Enter your name as registered in the cosmic database.',
+              'Enter your name and cosmic passcode to reconnect.',
               textAlign: TextAlign.center,
               style: AppTextStyles.caption.copyWith(color: AppColors.textGrey),
             ),
@@ -69,6 +74,25 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               decoration: InputDecoration(
                 hintText: 'Your Full Name...',
                 filled: true,
+                prefixIcon: const Icon(Icons.person_outline, size: 20),
+                fillColor: AppColors.surfaceVeryLight,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            12.verticalSpace,
+            TextField(
+              controller: _passcodeController,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              decoration: InputDecoration(
+                hintText: '4-Digit Passcode',
+                filled: true,
+                counterText: "",
+                prefixIcon: const Icon(Icons.lock_outline, size: 20),
                 fillColor: AppColors.surfaceVeryLight,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.r),
@@ -81,7 +105,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('CANCEL', style: TextStyle(color: AppColors.textGrey, fontSize: 12.sp)),
+            child: Text(
+              'CANCEL',
+              style: TextStyle(color: AppColors.textGrey, fontSize: 12.sp),
+            ),
           ),
           Consumer<UserProvider>(
             builder: (context, provider, _) => ElevatedButton(
@@ -89,27 +116,71 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ? null
                   : () async {
                       if (_nameSearchController.text.trim().isEmpty) return;
-                      final success = await provider.joinExistingProfile(_nameSearchController.text.trim());
-                      if (!mounted) return;
-                      if (success) {
-                        Navigator.pop(context); // Close dialog
-                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      if (_passcodeController.text.length < 4) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Welcome back, Manifestor! ✨')),
+                          const SnackBar(
+                            content: Text(
+                              'Please enter your 4-digit passcode 🔒',
+                            ),
+                          ),
                         );
-                      } else {
+                        return;
+                      }
+
+                      try {
+                        final success = await provider.joinExistingProfile(
+                          _nameSearchController.text.trim(),
+                          _passcodeController.text.trim(),
+                        );
+                        if (!mounted) return;
+                        if (success) {
+                          _nameSearchController.clear();
+                          _passcodeController.clear();
+                          Navigator.pop(context); // Close dialog
+                          Navigator.pushReplacementNamed(
+                            context,
+                            AppRoutes.home,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Welcome back, Manifestor! ✨'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Identity not found. Try again? 🌌',
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Identity not found. Try again? 🌌')),
+                          SnackBar(
+                            content: Text(
+                              e.toString().replaceAll('Exception: ', ''),
+                            ),
+                          ),
                         );
                       }
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.purple,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
               ),
-              child: provider.isLoading 
-                ? SizedBox(width: 15.w, height: 15.w, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('JOIN', style: TextStyle(color: Colors.white)),
+              child: provider.isLoading
+                  ? SizedBox(
+                      width: 15.w,
+                      height: 15.w,
+                      child: const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('JOIN', style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
@@ -189,11 +260,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               child: Image.asset(
                                 'assets/images/welcome.png',
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Icon(
-                                  Icons.auto_awesome_rounded,
-                                  size: 100.w,
-                                  color: AppColors.purple.withValues(alpha: 0.3),
-                                ),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(
+                                      Icons.auto_awesome_rounded,
+                                      size: 100.w,
+                                      color: AppColors.purple.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                    ),
                               ),
                             ),
                           ),

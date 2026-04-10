@@ -49,12 +49,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_tempAvatar != null) {
       provider.updateAvatar(_tempAvatar!);
     }
-    
+
     // Attempt backend sync
     provider.syncToApi().catchError((e) {
       debugPrint('Sync warning: $e');
     });
-    
+
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -73,7 +73,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Consumer<UserProvider>(
       builder: (context, provider, _) {
         final currentAvatar = _tempAvatar ?? provider.profileImage;
-        
+
         return Scaffold(
           backgroundColor: AppColors.white,
           appBar: AppBar(
@@ -131,7 +131,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
-                            _tempAvatar = 'https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}&backgroundColor=b6e3f4,c0aede,d1d4f9';
+                            _tempAvatar =
+                                'https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}&backgroundColor=b6e3f4,c0aede,d1d4f9';
                           });
                         },
                         child: Container(

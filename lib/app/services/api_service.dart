@@ -18,6 +18,7 @@ class ApiService {
     required List<String> personalAnswers,
     required List<String> familyAnswers,
     required List<String> professionalAnswers,
+    String? passcode,
   }) async {
     try {
       final response = await _dio.post(
@@ -29,6 +30,7 @@ class ApiService {
           'personal_answers': personalAnswers,
           'family_answers': familyAnswers,
           'professional_answers': professionalAnswers,
+          'passcode': passcode,
         },
       );
 
@@ -67,12 +69,12 @@ class ApiService {
     try {
       final response = await _dio.post(
         '/api/generate-plan',
-        data: {
-          'user_id': userId,
-          'goal_title': goal,
-        },
+        data: {'user_id': userId, 'goal_title': goal},
       );
-      return response.data['data'];
+      final body = Map<String, dynamic>.from(response.data);
+      // Pass through invalid-input responses so provider can show the reason
+      if (body['valid'] == false) return body;
+      return body['data'] ?? {};
     } catch (e) {
       throw Exception('Failed to manifest your plan: $e');
     }
@@ -93,11 +95,25 @@ class ApiService {
 
   Future<bool> deleteManifest(String manifestationId) async {
     try {
-      final response = await _dio.delete('/api/manifestations/$manifestationId');
+      final response = await _dio.delete(
+        '/api/manifestations/$manifestationId',
+      );
       return response.statusCode == 200 && response.data['success'] == true;
     } catch (e) {
       debugPrint('Failed to delete manifestation: $e');
       return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> generateArchetype(String userId) async {
+    try {
+      final response = await _dio.post(
+        '/api/generate-archetype',
+        data: {'user_id': userId},
+      );
+      return response.data['data'] as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Failed to discover your archetype: $e');
     }
   }
 }

@@ -329,6 +329,110 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
 
+                      // ── Invalid Input Info Card ───────────────────────────
+                      if (provider.invalidReason != null) ...[
+                        24.verticalSpace,
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(20.r),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8E1),
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: const Color(0xFFFFCC02),
+                              width: 1.5.w,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFFFFCC02,
+                                ).withValues(alpha: 0.15),
+                                blurRadius: 12.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(8.r),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFFFFCC02,
+                                      ).withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.lightbulb_outline_rounded,
+                                      color: const Color(0xFFE6A800),
+                                      size: 20.sp,
+                                    ),
+                                  ),
+                                  12.horizontalSpace,
+                                  Text(
+                                    'Not a valid manifestation goal',
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFF7A5800),
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              16.verticalSpace,
+                              Text(
+                                provider.invalidReason!,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: const Color(0xFF5C4000),
+                                  height: 1.6,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                              if (provider.invalidTip != null &&
+                                  provider.invalidTip!.isNotEmpty) ...[
+                                12.verticalSpace,
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 14.w,
+                                    vertical: 10.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(
+                                      0xFFFFCC02,
+                                    ).withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '💡 ',
+                                        style: TextStyle(fontSize: 14.sp),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          provider.invalidTip!,
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: const Color(0xFF7A5800),
+                                                fontSize: 13.sp,
+                                                height: 1.5,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+
                       if (provider.actionCards.isNotEmpty) ...[
                         48.verticalSpace,
                         Row(

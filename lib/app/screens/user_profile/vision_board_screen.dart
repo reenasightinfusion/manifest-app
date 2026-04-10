@@ -88,7 +88,7 @@ class _VisionBoardScreenState extends State<VisionBoardScreen> {
               ),
               16.verticalSpace,
               Text(
-                'Are you sure you want to release "${title}"?',
+                'Are you sure you want to release "$title"?',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textGrey,
                   height: 1.6,
@@ -108,7 +108,10 @@ class _VisionBoardScreenState extends State<VisionBoardScreen> {
                           foregroundColor: AppColors.textGrey,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.r),
-                            side: BorderSide(color: AppColors.borderLight, width: 1.5.w),
+                            side: BorderSide(
+                              color: AppColors.borderLight,
+                              width: 1.5.w,
+                            ),
                           ),
                         ),
                         child: Text(

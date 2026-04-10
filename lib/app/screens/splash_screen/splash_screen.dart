@@ -186,7 +186,7 @@ class _LoadingDotsState extends State<_LoadingDots>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _dotController,
-      builder: (_, __) {
+      builder: (_, _) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(3, (i) {

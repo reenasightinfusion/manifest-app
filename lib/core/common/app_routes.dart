@@ -12,4 +12,5 @@ class AppRoutes {
   static const String actionDetail = '/actionDetail';
   static const String visionBoard = '/visionBoard';
   static const String spiritualArchetype = '/spiritualArchetype';
+  static const String privacySettings = '/privacySettings';
 }

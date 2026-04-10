@@ -4,197 +4,348 @@ import '../../../core/common/core.dart';
 import '../../services/user_provider.dart';
 import '../../widgets/primary_button.dart';
 
-class SpiritualArchetypeScreen extends StatelessWidget {
+class SpiritualArchetypeScreen extends StatefulWidget {
   const SpiritualArchetypeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userProvider = context.watch<UserProvider>();
-    final archetype = _calculateArchetype(userProvider);
+  State<SpiritualArchetypeScreen> createState() =>
+      _SpiritualArchetypeScreenState();
+}
 
+class _SpiritualArchetypeScreenState extends State<SpiritualArchetypeScreen> {
+  static const List<Color> _primaryPalette = [
+    Color(0xFF7B2FF7), // Purple
+    Color(0xFFE91E8C), // Pink
+  ];
+
+  static const List<IconData> _icons = [
+    Icons.auto_awesome_rounded,
+    Icons.palette_rounded,
+    Icons.architecture_rounded,
+    Icons.explore_rounded,
+    Icons.psychology_rounded,
+    Icons.diamond_rounded,
+  ];
+
+  /// Returns the standard brand palette
+  List<Color> _getPalette(String name) {
+    return _primaryPalette;
+  }
+
+  IconData _getIcon(String name) {
+    final idx = name.codeUnits.fold(0, (a, b) => a + b) % _icons.length;
+    return _icons[idx];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch fresh AI-generated archetype after the frame builds
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<UserProvider>();
+      if (user.userId != null) {
+        user.fetchArchetype();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, _) {
+        final isLoading = userProvider.isFetchingArchetype;
+        final data = userProvider.archetypeData;
+
+        if (isLoading) return _buildLoadingScreen();
+        if (data == null) return _buildErrorScreen(context, userProvider);
+
+        final archetypeName =
+            (data['archetype_name'] as String?) ?? 'The Manifesting Mystic';
+        final headerLabel =
+            (data['header_label'] as String?) ?? 'COSMIC FOOTPRINT';
+        final essenceLabel =
+            (data['essence_label'] as String?) ?? 'The Soul Essence';
+        final essenceDesc = (data['essence_description'] as String?) ?? '';
+        final strengthsLabel =
+            (data['strengths_label'] as String?) ?? 'Core Strengths';
+        final strengths = List<String>.from(data['strengths'] as List? ?? []);
+        final visionLabel =
+            (data['vision_label'] as String?) ?? 'Spiritual Vision';
+        final visionText = (data['vision_text'] as String?) ?? '';
+        final buttonLabel =
+            (data['button_label'] as String?) ?? 'Continue My Journey';
+
+        final palette = _getPalette(archetypeName);
+        final icon = _getIcon(archetypeName);
+
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 250.h,
+                pinned: true,
+                backgroundColor: palette[0],
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppColors.white,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                actions: [
+                  // Refresh button — re-generate archetype on demand
+                  IconButton(
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: AppColors.white,
+                    ),
+                    tooltip: 'Regenerate',
+                    onPressed: () {
+                      if (userProvider.userId != null) {
+                        userProvider.fetchArchetype();
+                      }
+                    },
+                  ),
+                  10.horizontalSpace,
+                ],
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Base gradient
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              palette[0].withValues(alpha: 0.85),
+                              palette[1].withValues(alpha: 0.95),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                      // Aura glow top-left
+                      Positioned(
+                        top: -100.h,
+                        left: -100.w,
+                        child: Container(
+                          width: 400.r,
+                          height: 400.r,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                AppColors.white.withValues(alpha: 0.15),
+                                AppColors.white.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Aura glow bottom-right
+                      Positioned(
+                        bottom: 0,
+                        right: -150.w,
+                        child: Container(
+                          width: 500.r,
+                          height: 500.r,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                palette[0].withValues(alpha: 0.3),
+                                palette[0].withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Large icon watermark
+                      Positioned(
+                        bottom: -30.h,
+                        right: -20.w,
+                        child: Icon(
+                          icon,
+                          size: 260.sp,
+                          color: AppColors.white.withValues(alpha: 0.08),
+                        ),
+                      ),
+                      // Text content
+                      Padding(
+                        padding: EdgeInsets.all(24.r),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header label badge
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 14.w,
+                                vertical: 8.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(30.r),
+                                border: Border.all(
+                                  color: AppColors.white.withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: Text(
+                                headerLabel.toUpperCase(),
+                                style: AppTextStyles.label.copyWith(
+                                  color: AppColors.white,
+                                  letterSpacing: 2.0,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                            16.verticalSpace,
+                            Text(
+                              archetypeName,
+                              style: AppTextStyles.headingLarge.copyWith(
+                                color: AppColors.white,
+                                fontSize: 38.sp,
+                                fontWeight: FontWeight.w900,
+                                height: 1.1,
+                                shadows: [
+                                  Shadow(
+                                    color: AppColors.black.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    offset: const Offset(0, 4),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Body ────────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: EdgeInsets.all(24.r),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Essence section
+                      _SectionHeader(
+                        title: essenceLabel,
+                        icon: Icons.auto_awesome,
+                      ),
+                      16.verticalSpace,
+                      Text(
+                        essenceDesc,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.textGrey,
+                          height: 1.6,
+                        ),
+                      ),
+                      32.verticalSpace,
+
+                      // Strengths section
+                      _SectionHeader(title: strengthsLabel, icon: Icons.bolt),
+                      16.verticalSpace,
+                      Wrap(
+                        spacing: 12.w,
+                        runSpacing: 12.h,
+                        children: strengths
+                            .map(
+                              (s) => _StrengthChip(label: s, color: palette[0]),
+                            )
+                            .toList(),
+                      ),
+                      32.verticalSpace,
+
+                      // Vision section
+                      _SectionHeader(
+                        title: visionLabel,
+                        icon: Icons.remove_red_eye,
+                      ),
+                      16.verticalSpace,
+                      _VisionCard(text: visionText, color: palette[0]),
+                      40.verticalSpace,
+
+                      PrimaryButton(
+                        label: buttonLabel,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      40.verticalSpace,
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ── Loading Screen ─────────────────────────────────────────────────────
+  Widget _buildLoadingScreen() {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 250.h,
-            pinned: true,
-            backgroundColor: AppColors.purple,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: AppColors.white,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Base Ambient Background
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          archetype.gradientColors[0].withValues(alpha: 0.8),
-                          archetype.gradientColors[1].withValues(alpha: 0.9),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-
-                  // Dynamic Aura Layers
-                  Positioned(
-                    top: -100.h,
-                    left: -100.w,
-                    child: Container(
-                      width: 400.r,
-                      height: 400.r,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            AppColors.white.withValues(alpha: 0.15),
-                            AppColors.white.withValues(alpha: 0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: -150.w,
-                    child: Container(
-                      width: 500.r,
-                      height: 500.r,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            archetype.gradientColors[0].withValues(alpha: 0.3),
-                            archetype.gradientColors[0].withValues(alpha: 0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Subtle Large Icon Overlay
-                  Positioned(
-                    bottom: -30.h,
-                    right: -20.w,
-                    child: Icon(
-                      archetype.icon,
-                      size: 260.sp,
-                      color: AppColors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-
-                  // Header Content with subtle protection
-                  Padding(
-                    padding: EdgeInsets.all(24.r),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(30.r),
-                            border: Border.all(
-                              color: AppColors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Text(
-                            'COSMIC FOOTPRINT',
-                            style: AppTextStyles.label.copyWith(
-                              color: AppColors.white,
-                              letterSpacing: 2.0,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        16.verticalSpace,
-                        Text(
-                          archetype.name,
-                          style: AppTextStyles.headingLarge.copyWith(
-                            color: AppColors.white,
-                            fontSize: 38.sp,
-                            fontWeight: FontWeight.w900,
-                            height: 1.1,
-                            shadows: [
-                              Shadow(
-                                color: AppColors.black.withValues(alpha: 0.1),
-                                offset: const Offset(0, 4),
-                                blurRadius: 10,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // Gradient header placeholder
+          Container(
+            height: 250.h,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF7B2FF7), Color(0xFFE91E8C)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.all(24.r),
+          SafeArea(
+            child: Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _SectionHeader(
-                    title: 'The Essence',
-                    icon: Icons.auto_awesome,
+                  100.verticalSpace,
+                  Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.surfaceLight,
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.purple,
+                        strokeWidth: 3,
+                      ),
+                    ),
                   ),
-                  16.verticalSpace,
+                  32.verticalSpace,
                   Text(
-                    archetype.description,
-                    style: AppTextStyles.bodyLarge.copyWith(
+                    'Reading Your Cosmic DNA...',
+                    style: AppTextStyles.headingMedium.copyWith(
+                      color: AppColors.textDark,
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  12.verticalSpace,
+                  Text(
+                    'The universe is crafting your unique\nspiritual archetype',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textGrey,
                       height: 1.6,
                     ),
                   ),
-                  32.verticalSpace,
-                  _SectionHeader(title: 'Core Strengths', icon: Icons.bolt),
-                  16.verticalSpace,
-                  Wrap(
-                    spacing: 12.w,
-                    runSpacing: 12.h,
-                    children: archetype.strengths
-                        .map(
-                          (s) => _StrengthChip(
-                            label: s,
-                            color: archetype.gradientColors[0],
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  32.verticalSpace,
-                  _SectionHeader(
-                    title: 'Spiritual Vision',
-                    icon: Icons.remove_red_eye,
-                  ),
-                  16.verticalSpace,
-                  _VisionCard(
-                    text: archetype.vision,
-                    color: archetype.gradientColors[0],
-                  ),
-                  40.verticalSpace,
-                  PrimaryButton(
-                    label: 'Continue My Journey',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  40.verticalSpace,
                 ],
               ),
             ),
@@ -204,66 +355,75 @@ class SpiritualArchetypeScreen extends StatelessWidget {
     );
   }
 
-  _ArchetypeData _calculateArchetype(UserProvider user) {
-    // Mock logic based on keywords in answers
-    final allAnswers =
-        (user.personalAnswers + user.familyAnswers + user.professionalAnswers)
-            .join(' ')
-            .toLowerCase();
-
-    if (allAnswers.contains('art') ||
-        allAnswers.contains('creative') ||
-        allAnswers.contains('build')) {
-      return _ArchetypeData(
-        name: 'The Creative Catalyst',
-        description:
-            'You possess a rare ability to transform abstract ideas into tangible reality. Your spirit thrives on expression and the constant desire to innovate and inspire.',
-        strengths: ['Imagination', 'Authenticity', 'Fluidity'],
-        vision:
-            'Your path involves using your unique voice to bridge the gap between the mundane and the magical.',
-        icon: Icons.palette_rounded,
-        gradientColors: [const Color(0xFFF093FB), const Color(0xFFF5576C)],
-      );
-    } else if (allAnswers.contains('business') ||
-        allAnswers.contains('money') ||
-        allAnswers.contains('system')) {
-      return _ArchetypeData(
-        name: 'The Abundance Architect',
-        description:
-            'You see the world as a series of structures waiting to be optimized. You understand that true wealth is built on a foundation of integrity and strategic vision.',
-        strengths: ['Strategy', 'Efficiency', 'Stability'],
-        vision:
-            'You are destined to build systems that generate lasting impact for yourself and those around you.',
-        icon: Icons.architecture_rounded,
-        gradientColors: [const Color(0xFF4FACFE), const Color(0xFF00F2FE)],
-      );
-    } else if (allAnswers.contains('help') ||
-        allAnswers.contains('serve') ||
-        allAnswers.contains('people')) {
-      return _ArchetypeData(
-        name: 'The Purposeful Pathfinder',
-        description:
-            'Your heart is tuned to the needs of the collective. You find your greatest fulfillment in guiding others toward their own light and clarity.',
-        strengths: ['Empathy', 'Guidance', 'Resilience'],
-        vision:
-            'Your journey is one of service, finding meaning in the connections you forge and the lives you touch.',
-        icon: Icons.explore_rounded,
-        gradientColors: [const Color(0xFF43E97B), const Color(0xFF38F9D7)],
-      );
-    } else {
-      return _ArchetypeData(
-        name: 'The Manifesting Mystic',
-        description:
-            'You are deeply attuned to the rhythms of the universe. You understand that the outer world is a reflection of your inner state, and you prioritize spiritual alignment above all.',
-        strengths: ['Intuition', 'Presence', 'Alignment'],
-        vision:
-            'Your primary task is to maintain your vibrance, allowing your dreams to manifest with effortless grace.',
-        icon: Icons.auto_awesome_rounded,
-        gradientColors: [const Color(0xFFA18CD1), const Color(0xFFFBC2EB)],
-      );
-    }
+  // ── Error Screen ───────────────────────────────────────────────────────
+  Widget _buildErrorScreen(BuildContext context, UserProvider userProvider) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textDark,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.r),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(24.r),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.psychology_outlined,
+                  color: AppColors.purple,
+                  size: 48.sp,
+                ),
+              ),
+              24.verticalSpace,
+              Text(
+                'Cosmic Signal Lost',
+                style: AppTextStyles.headingMedium.copyWith(
+                  color: AppColors.textDark,
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              12.verticalSpace,
+              Text(
+                'Unable to generate your spiritual archetype right now. Make sure your profile answers are complete and try again.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textGrey,
+                  height: 1.6,
+                ),
+              ),
+              32.verticalSpace,
+              PrimaryButton(
+                label: 'Try Again ✨',
+                onPressed: () {
+                  if (userProvider.userId != null) {
+                    userProvider.fetchArchetype();
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
+
+// ── Shared Widgets (unchanged UI) ─────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -338,46 +498,15 @@ class _VisionCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.star_rounded, color: color, size: 24.sp),
+      child: Expanded(
+        child: Text(
+          text,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textGrey,
+            fontStyle: FontStyle.italic,
           ),
-          16.horizontalSpace,
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textGrey,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
-}
-
-class _ArchetypeData {
-  final String name;
-  final String description;
-  final List<String> strengths;
-  final String vision;
-  final IconData icon;
-  final List<Color> gradientColors;
-
-  _ArchetypeData({
-    required this.name,
-    required this.description,
-    required this.strengths,
-    required this.vision,
-    required this.icon,
-    required this.gradientColors,
-  });
 }
