@@ -94,7 +94,10 @@ class _UserInfoScreenState extends State<UserInfoScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              e.toString().replaceAll('Exception: Server returned error: ', '').replaceAll('Exception: ', ''),
+              e
+                  .toString()
+                  .replaceAll('Exception: Server returned error: ', '')
+                  .replaceAll('Exception: ', ''),
               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
             ),
             backgroundColor: AppColors.pink,
@@ -121,6 +124,7 @@ class _UserInfoScreenState extends State<UserInfoScreen>
 
         return Scaffold(
           backgroundColor: AppColors.white,
+          resizeToAvoidBottomInset: false,
           body: Stack(
             children: [
               Positioned(
@@ -506,27 +510,29 @@ class _QuestionPage extends StatelessWidget {
                 child: Icon(page.icon, color: AppColors.white, size: 26.sp),
               ),
               14.horizontalSpace,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    page.tag,
-                    style: AppTextStyles.label.copyWith(
-                      color: AppColors.purple,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2,
-                      fontSize: 12.sp,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      page.tag,
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.purple,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                        fontSize: 12.sp,
+                      ),
                     ),
-                  ),
-                  Text(
-                    page.title,
-                    style: AppTextStyles.headingMedium.copyWith(
-                      fontSize: 22.sp,
-                      height: 1.1,
-                      color: AppColors.textDark,
+                    Text(
+                      page.title,
+                      style: AppTextStyles.headingMedium.copyWith(
+                        fontSize: 22.sp,
+                        height: 1.1,
+                        color: AppColors.textDark,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -751,153 +757,167 @@ class _SecurityStepState extends State<_SecurityStep> {
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: widget.fadeAnim,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12.r),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: AppColors.primaryGradient,
-                    ),
-                    borderRadius: BorderRadius.circular(16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.glowPurple.withValues(alpha: 0.5),
-                        blurRadius: 12.r,
-                        spreadRadius: -2.r,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: AppColors.primaryGradient,
                       ),
-                    ],
-                  ),
-                  child: Icon(Icons.security_rounded, color: AppColors.white, size: 26.sp),
-                ),
-                14.horizontalSpace,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PROTECT THE COSMOS',
-                      style: AppTextStyles.label.copyWith(
-                        color: AppColors.purple,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                    Text(
-                      'Your Secret\nPassphrase',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        fontSize: 22.sp,
-                        height: 1.1,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            40.verticalSpace,
-            Center(
-              child: Container(
-                padding: EdgeInsets.all(24.r),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVeryLight,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.lock_person_rounded,
-                  size: 60.sp,
-                  color: AppColors.purple.withValues(alpha: 0.3),
-                ),
-              ),
-            ),
-            32.verticalSpace,
-            Text(
-              'To protect your manifestations, set a 4-digit code. This will be required when accessing your profile from any device.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textGrey,
-                height: 1.6,
-                fontSize: 14.sp,
-              ),
-            ),
-            40.verticalSpace,
-            // Wrap in GestureDetector to ensure keyboard opens on tap
-            GestureDetector(
-              onTap: () => _focusNode.requestFocus(),
-              behavior: HitTestBehavior.opaque,
-              child: Consumer<UserProvider>(
-                builder: (context, provider, _) => Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    final String code = provider.passcode ?? '';
-                    final bool filled = code.length > index;
-                    
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: EdgeInsets.symmetric(horizontal: 10.w),
-                      width: 50.w,
-                      height: 60.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: filled ? AppColors.purple : AppColors.borderVeryLight,
-                          width: filled ? 2.w : 1.w,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.glowPurple.withValues(alpha: 0.5),
+                          blurRadius: 12.r,
+                          spreadRadius: -2.r,
                         ),
-                        boxShadow: filled ? [
-                          BoxShadow(
-                            color: AppColors.purple.withValues(alpha: 0.1),
-                            blurRadius: 10.r,
-                            spreadRadius: 2.r,
-                          )
-                        ] : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          filled ? '●' : '',
-                          style: TextStyle(
-                            fontSize: 24.sp,
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.security_rounded,
+                      color: AppColors.white,
+                      size: 26.sp,
+                    ),
+                  ),
+                  14.horizontalSpace,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'PROTECT THE COSMOS',
+                          style: AppTextStyles.label.copyWith(
                             color: AppColors.purple,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                            fontSize: 12.sp,
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                        Text(
+                          'Your Secret\nPassphrase',
+                          style: AppTextStyles.headingMedium.copyWith(
+                            fontSize: 22.sp,
+                            height: 1.1,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              40.verticalSpace,
+              Center(
+                child: Container(
+                  padding: EdgeInsets.all(24.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVeryLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.lock_person_rounded,
+                    size: 60.sp,
+                    color: AppColors.purple.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
-            ),
-            24.verticalSpace,
-            Text(
-              'TAP TO ENTER CODE',
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.textLightGrey,
-                fontSize: 10.sp,
-                letterSpacing: 2,
-              ),
-            ),
-            // The actual hidden TextField
-            SizedBox(
-              height: 0,
-              width: 0,
-              child: TextField(
-                focusNode: _focusNode,
-                controller: _controller,
-                keyboardType: TextInputType.number,
-                maxLength: 4,
-                onChanged: (val) {
-                  context.read<UserProvider>().setPasscode(val);
-                },
-                decoration: const InputDecoration(
-                  counterText: "",
-                  border: InputBorder.none,
+              32.verticalSpace,
+              Text(
+                'To protect your manifestations, set a 4-digit code. This will be required when accessing your profile from any device.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textGrey,
+                  height: 1.6,
+                  fontSize: 14.sp,
                 ),
               ),
-            ),
-          ],
+              40.verticalSpace,
+              // Wrap in GestureDetector to ensure keyboard opens on tap
+              GestureDetector(
+                onTap: () => _focusNode.requestFocus(),
+                behavior: HitTestBehavior.opaque,
+                child: Consumer<UserProvider>(
+                  builder: (context, provider, _) => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(4, (index) {
+                      final String code = provider.passcode ?? '';
+                      final bool filled = code.length > index;
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: EdgeInsets.symmetric(horizontal: 6.w),
+                        width: 45.w,
+                        height: 55.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(16.r),
+                          border: Border.all(
+                            color: filled
+                                ? AppColors.purple
+                                : AppColors.borderVeryLight,
+                            width: filled ? 2.w : 1.w,
+                          ),
+                          boxShadow: filled
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.purple.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    blurRadius: 10.r,
+                                    spreadRadius: 2.r,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            filled ? '●' : '',
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              color: AppColors.purple,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              24.verticalSpace,
+              Text(
+                'TAP TO ENTER CODE',
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textLightGrey,
+                  fontSize: 10.sp,
+                  letterSpacing: 2,
+                ),
+              ),
+              // The actual hidden TextField
+              SizedBox(
+                height: 0,
+                width: 0,
+                child: TextField(
+                  focusNode: _focusNode,
+                  controller: _controller,
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
+                  onChanged: (val) {
+                    context.read<UserProvider>().setPasscode(val);
+                  },
+                  decoration: const InputDecoration(
+                    counterText: "",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

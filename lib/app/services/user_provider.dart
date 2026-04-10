@@ -211,18 +211,22 @@ class UserProvider with ChangeNotifier {
       );
 
       // Save locally after successful sync
-      final prefs = await SharedPreferences.getInstance();
-      _userId = data['id']; // Get ID from response
-      debugPrint('SYNC SUCCESS: new userId=$_userId');
+      if (data != null) {
+        final prefs = await SharedPreferences.getInstance();
+        _userId = data['id']; // Get ID from response
+        debugPrint('SYNC SUCCESS: new userId=$_userId');
 
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('userName', _name);
-      await prefs.setString('userImage', _profileImage);
-      await prefs.setString('userId', _userId!);
-      if (_passcode != null) {
-        await prefs.setString('userPasscode', _passcode!);
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userName', _name);
+        await prefs.setString('userImage', _profileImage);
+        await prefs.setString('userId', _userId!);
+        if (_passcode != null) {
+          await prefs.setString('userPasscode', _passcode!);
+        }
+        _isLoggedIn = true;
+      } else {
+        debugPrint('SYNC SUCCESS but returned no data object.');
       }
-      _isLoggedIn = true;
     } catch (e) {
       debugPrint('SYNC ERROR: $e');
       rethrow;

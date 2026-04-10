@@ -5,7 +5,7 @@ class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
       // Pointing to Live Vercel Backend
-      baseUrl: 'https://manifest-backend.vercel.app',
+      baseUrl: 'https://backend-ten-liard-70.vercel.app',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -40,7 +40,11 @@ class ApiService {
       return response.data['data'];
     } catch (e) {
       if (e is DioException) {
-        throw Exception('Network Error: ${e.message}');
+        String? serverMessage;
+        if (e.response?.data != null && e.response?.data is Map) {
+          serverMessage = e.response?.data['message'] ?? e.response?.data['error'];
+        }
+        throw Exception('Network Error: ${serverMessage ?? e.message}');
       }
       throw Exception('Cosmic Sync Error: $e');
     }
